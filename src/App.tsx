@@ -7,7 +7,7 @@ import reactLogo from "./react.svg";
 
 export function App() {
   // Check if we're on a player page
-  const isPlayerPage = window.location.pathname.startsWith('/player/');
+  const isPlayerPage = window.location.pathname.startsWith('/players/');
   
   // If we're on a player page, extract the player name
   const playerName = isPlayerPage ? window.location.pathname.split('/')[2] : null;

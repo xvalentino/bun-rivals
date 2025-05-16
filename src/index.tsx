@@ -1,6 +1,7 @@
 import { serve } from "bun";
 import { fetchAndStoreHeroes, fetchAndStorePlayer } from "./lib/mv-api";
 import type { Hero, Player } from "./lib/schema";
+import index from "./index.html";
 
 // Define a result type for API responses
 type Result<T, E extends Error = Error> = 
@@ -25,6 +26,9 @@ const server = serve({
   
   // Define routes
   routes: {
+
+    "/*": index,
+    
     // API Routes
     "/api/hydrate/heroes": async () => {
       try {
@@ -96,22 +100,15 @@ const server = serve({
       const file = Bun.file(`public/static/${path}`);
       return new Response(file);
     },
-    
-    // Player route - serves the frontend HTML
-    "/player/*": () => {
-      return new Response(Bun.file("src/index.html"), {
-        headers: { "Content-Type": "text/html" },
-      });
-    },
   },
   
   // Fallback for unmatched routes - serve the frontend
-  fetch(req) {
-    console.log('fetch')
-    return new Response(Bun.file("src/index.html"), {
-      headers: { "Content-Type": "text/html" },
-    });
-  },
+  // fetch(req) {
+  //   console.log('fetch')
+  //   return new Response(Bun.file("src/index.html"), {
+  //     headers: { "Content-Type": "text/html" },
+  //   });
+  // },
   
   // Development settings
   development: process.env.NODE_ENV !== "production" && {
