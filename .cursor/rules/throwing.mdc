@@ -1,0 +1,56 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Error Handling: Think Before Throwing
+
+Think carefully before implementing code that throws errors.
+
+## When to Throw
+
+If a thrown error produces a desirable outcome in the system, go for it. For instance, throwing a custom error inside a backend framework's request handler.
+
+## Consider Result Types
+
+For code that you would need a manual try-catch for, consider using a result type instead:
+
+```ts
+type Result<T, E extends Error> =
+  | { ok: true; value: T }
+  | { ok: false; error: E };
+```
+
+## Example: Parsing JSON
+
+```ts
+// ❌ AVOID: Throwing errors that require try-catch at call site
+const parseJson = (input: string): unknown => {
+  return JSON.parse(input); // Throws on invalid JSON
+};
+
+// ✅ USE: Result types for expected errors
+const parseJson = (
+  input: string,
+): Result<unknown, Error> => {
+  try {
+    return { ok: true, value: JSON.parse(input) };
+  } catch (error) {
+    return { ok: false, error: error as Error };
+  }
+};
+```
+
+## Handling Results
+
+This approach makes error handling explicit at the call site:
+
+```ts
+const result = parseJson('{"name": "John"}');
+
+if (result.ok) {
+  console.log(result.value);
+} else {
+  console.error(result.error);
+}
+```
