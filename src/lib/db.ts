@@ -34,6 +34,7 @@ db.run(`
     heroes_ranked JSON,
     heroes_unranked JSON,
     maps JSON,
+    updates JSON,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `);
@@ -60,7 +61,7 @@ export interface DB {
     values(...params: unknown[]): unknown[][];
   };
 }
-// db.run("ALTER TABLE players ADD COLUMN overall_stats JSON;");
+// db.run("ALTER TABLE players ADD COLUMN updates JSON;");
 
 // Export database instance
 export default db as DB;

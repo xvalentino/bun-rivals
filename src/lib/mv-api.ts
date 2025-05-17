@@ -121,10 +121,9 @@ export async function fetchAndStorePlayer(playerName: string): Promise<Result<Pl
     const stmt = db.prepare(`
       INSERT OR REPLACE INTO players
       (uid, name, player_data, match_history, rank_history, hero_matchups, 
-       team_mates, heroes_ranked, heroes_unranked, maps, overall_stats, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+       team_mates, heroes_ranked, heroes_unranked, maps, updates, overall_stats, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     `);
-
     
     stmt.run(
       player.uid,
@@ -137,6 +136,7 @@ export async function fetchAndStorePlayer(playerName: string): Promise<Result<Pl
       player.heroes_ranked ? JSON.stringify(player.heroes_ranked) : null,
       player.heroes_unranked ? JSON.stringify(player.heroes_unranked) : null,
       player.maps ? JSON.stringify(player.maps) : null,
+      player.updates ? JSON.stringify(player.updates) : null,
       player.overall_stats ? JSON.stringify(player.overall_stats) : null
     );
 

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { z } from "zod";
-import { PlayerResponse, HeroSchema } from "@/lib/schema";
+import { PlayerResponseSchema, HeroSchema } from "@/lib/schema";
 import { useQueries } from "@tanstack/react-query";
 
 interface PlayerStatsProps {
@@ -51,7 +51,7 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
           if (result.error) {
             throw new Error(result.error);
           }
-          const player = PlayerResponse.parse(result.player);
+          const player = PlayerResponseSchema.parse(result.player);
           
           return player;
         }
