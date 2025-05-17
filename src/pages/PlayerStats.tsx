@@ -7,7 +7,8 @@ import { useQueries } from "@tanstack/react-query";
 import { 
   OverviewTab, 
   HeroMatchupsTab, 
-  TeammatesTab
+  TeammatesTab,
+  HeroesTab
 } from "@/components/player-stats";
 import type { PlayerStatsProps } from "@/components/player-stats";
 
@@ -78,6 +79,8 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
   const rankHistory = playerData.rank_history;
   const heroMatchups = playerData.hero_matchups;
   const teamMates = playerData.team_mates;
+  const heroesRanked = playerData.heroes_ranked;
+  const heroesUnranked = playerData.heroes_unranked;
   const overallStats = playerData.overall_stats;
 
   // Determine which tabs to show based on available data
@@ -85,6 +88,8 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
   const hasRankHistory = rankHistory && rankHistory.length > 0;
   const hasHeroMatchups = heroMatchups && heroMatchups.length > 0;
   const hasTeammates = teamMates && teamMates.length > 0;
+  const hasRankedHeroes = heroesRanked && Object.keys(heroesRanked).length > 0;
+  const hasUnrankedHeroes = heroesUnranked && Object.keys(heroesUnranked).length > 0;
 
   // Ensure heroes is never undefined
   const safeHeroes = heroes || [];
@@ -97,6 +102,8 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             {hasHeroMatchups && <TabsTrigger value="heroes">Hero Matchups</TabsTrigger>}
             {hasTeammates && <TabsTrigger value="teammates">Teammates</TabsTrigger>}
+            {hasRankedHeroes && <TabsTrigger value="ranked-heroes">Ranked Heroes</TabsTrigger>}
+            {hasUnrankedHeroes && <TabsTrigger value="unranked-heroes">Unranked Heroes</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="overview">
@@ -112,6 +119,22 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
           {hasTeammates && (
             <TabsContent value="teammates">
               <TeammatesTab data={{ teamMates }} />
+            </TabsContent>
+          )}
+
+          {hasRankedHeroes && (
+            <TabsContent value="ranked-heroes">
+              <HeroesTab 
+                data={{ heroes: heroesRanked }}
+              />
+            </TabsContent>
+          )}
+
+          {hasUnrankedHeroes && (
+            <TabsContent value="unranked-heroes">
+              <HeroesTab 
+                data={{ heroes: heroesUnranked }} 
+              />
             </TabsContent>
           )}
         </Tabs>

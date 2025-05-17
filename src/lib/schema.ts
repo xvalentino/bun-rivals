@@ -119,8 +119,46 @@ export const PlayerSchema = z.object({
   rank_history: z.array(RankHistoryItemSchema).optional(),
   hero_matchups: z.array(HeroMatchupSchema).optional(),
   team_mates: z.array(TeammateSchema).optional(),
-  heroes_ranked: z.union([z.record(z.number()), z.array(z.any())]).optional(),
-  heroes_unranked: z.union([z.record(z.number()), z.array(z.any())]).optional(),
+  heroes_ranked: z.array(z.object({
+    hero_id: z.number(),
+    hero_name: z.string(),
+    hero_thumbnail: z.string(),
+    matches: z.number(),
+    wins: z.number(),
+    mvp: z.number(), 
+    svp: z.number(),
+    kills: z.number(),
+    deaths: z.number(),
+    assists: z.number(),
+    play_time: z.number(),
+    damage: z.number(),
+    heal: z.number(),
+    damage_taken: z.number(),
+    main_attack: z.object({
+      total: z.number(),
+      hits: z.number()
+    })
+  })),
+  heroes_unranked: z.array(z.object({
+    hero_id: z.number(),
+    hero_name: z.string(), 
+    hero_thumbnail: z.string(),
+    matches: z.number(),
+    wins: z.number(),
+    mvp: z.number(),
+    svp: z.number(),
+    kills: z.number(),
+    deaths: z.number(),
+    assists: z.number(),
+    play_time: z.number(),
+    damage: z.number(),
+    heal: z.number(),
+    damage_taken: z.number(),
+    main_attack: z.object({
+      total: z.number(),
+      hits: z.number()
+    })
+  })),
   maps: z.union([z.record(z.number()), z.array(z.any())]).optional(),
 });
 
@@ -172,24 +210,12 @@ const HeroesRankedSchema = z.object({
 });
 
 
-// export const PlayerResponse = z.object({
-//   uid: z.string(),
-//   name: z.string(),
-//   player_data: z.string().optional().transform(val => val && JSON.parse(val)).pipe(PlayerDataSchema).optional(),
-//   match_history: z.string().transform(val => JSON.parse(val)).pipe(z.array(MatchHistorySchema)).optional(),
-//   rank_history: z.string().transform(val => JSON.parse(val)).pipe(z.array(RankHistorySchema)).optional(),
-//   hero_matchups: z.string().transform(val => JSON.parse(val)).pipe(z.array(HeroMatchupSchema)).optional(),
-//   team_mates: z.string().transform(val => JSON.parse(val)).pipe(z.array(TeammateSchema)).optional(),
-//   heroes_ranked: z.string().transform(val => JSON.parse(val)).pipe(z.array(HeroesRankedSchema)).optional(),
-//   heroes_unranked: z.string().transform(val => JSON.parse(val)).pipe(z.array(HeroesRankedSchema)).optional(), 
-//   maps: z.string().transform(val => JSON.parse(val)).pipe(z.array(z.any())).optional(),
-//   overall_stats: z.string().transform(val => JSON.parse(val)).pipe(OverallStatsSchema).optional(),
-//   updated_at: z.string()
-// })
-
 // Export types derived from schemas
 export type Player = z.infer<typeof PlayerSchema>;
 export type MatchHistoryItem = z.infer<typeof MatchHistoryItemSchema>;
 export type RankHistoryItem = z.infer<typeof RankHistoryItemSchema>;
 export type HeroMatchup = z.infer<typeof HeroMatchupSchema>;
 export type Teammate = z.infer<typeof TeammateSchema>;
+
+export type HeroesRanked = Player['heroes_ranked'];
+export type HeroesUnranked = Player['heroes_unranked'];
