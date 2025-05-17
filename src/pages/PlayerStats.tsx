@@ -250,9 +250,9 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {heroMatchups.map((hero: any, index: number) => (
+                      {heroMatchups.map((hero, index: number) => (
                         <TableRow key={index}>
-                            <TableCell className="font-medium">{heroes.find((h: any) => h.id === hero.hero_id)?.name || "N/A"}</TableCell>
+                            <TableCell className="font-medium">{toTitleCase(heroes?.find((h) => h.id === String(hero.hero_id))?.name) || hero.hero_id}</TableCell>
                           <TableCell>
                             <Badge variant={hero.win_rate > 50 ? "secondary" : "outline"}>
                               {hero.win_rate}%
@@ -303,3 +303,9 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
     </Card>
   );
 } 
+
+function toTitleCase(str) {
+  return str.split(' ').map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }).join(' ');
+}
