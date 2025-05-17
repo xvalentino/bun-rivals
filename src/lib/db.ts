@@ -41,25 +41,29 @@ db.run(`
 
 // Type-safe database interface
 export interface DB {
-  /**
-   * Executes a SQL query and returns all results
-   */
-  query<T = unknown>(sql: string): {
-    all(): T[];
-    get(...params: unknown[]): T | undefined;
-    run(...params: unknown[]): void;
-    values(): unknown[][];
-  };
+	/**
+	 * Executes a SQL query and returns all results
+	 */
+	query<T = unknown>(
+		sql: string,
+	): {
+		all(): T[];
+		get(...params: unknown[]): T | undefined;
+		run(...params: unknown[]): void;
+		values(): unknown[][];
+	};
 
-  /**
-   * Prepares a statement for execution
-   */
-  prepare<T = unknown>(sql: string): {
-    all(...params: unknown[]): T[];
-    get(...params: unknown[]): T | undefined;
-    run(...params: unknown[]): void;
-    values(...params: unknown[]): unknown[][];
-  };
+	/**
+	 * Prepares a statement for execution
+	 */
+	prepare<T = unknown>(
+		sql: string,
+	): {
+		all(...params: unknown[]): T[];
+		get(...params: unknown[]): T | undefined;
+		run(...params: unknown[]): void;
+		values(...params: unknown[]): unknown[][];
+	};
 }
 // db.run("ALTER TABLE players ADD COLUMN updates JSON;");
 
