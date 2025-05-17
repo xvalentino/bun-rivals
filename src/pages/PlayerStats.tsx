@@ -12,53 +12,55 @@ import {
 } from "@/components/player-stats";
 import type { PlayerStatsProps } from "@/components/player-stats";
 
+export const usePlayerAndHeroQueries = (playerName: string) => useQueries({
+  combine: (results) => {
+    return {
+      heroes: results[0].data,
+      playerData: results[1].data,
+      isLoading: results.some((result) => result.isLoading),
+      error: results.reduce((acc: Error | null, result) => {
+        if (result.error) {
+          return result.error as Error;
+        }
+        return acc;
+      }, null)
+    }
+  },
+  queries: [
+    {
+      queryKey: ['heroes'],
+      queryFn: async () => {
+        const response = await fetch('/api/heroes');
+        const result = await response.json();
+        const heroes = z.array(HeroSchema).parse(result.heroes);
+        return heroes;
+      }
+    },
+    {
+      queryKey: ['player', playerName],
+      queryFn: async () => {
+        const response = await fetch(`/api/players/${playerName}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch player data: ${response.status}`);
+        }
+        
+        const result = await response.json();
+
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        const player = PlayerResponseSchema.parse(result.player);
+        
+        return player;
+      }
+    }
+  ]
+});
+
 export function PlayerStats({ playerName }: PlayerStatsProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
-  const results = useQueries({
-    combine: (results) => {
-      return {
-        heroes: results[0].data,
-        playerData: results[1].data,
-        isLoading: results.some((result) => result.isLoading),
-        error: results.reduce((acc: Error | null, result) => {
-          if (result.error) {
-            return result.error as Error;
-          }
-          return acc;
-        }, null)
-      }
-    },
-    queries: [
-      {
-        queryKey: ['heroes'],
-        queryFn: async () => {
-          const response = await fetch('/api/heroes');
-          const result = await response.json();
-          const heroes = z.array(HeroSchema).parse(result.heroes);
-          return heroes;
-        }
-      },
-      {
-        queryKey: ['player', playerName],
-        queryFn: async () => {
-          const response = await fetch(`/api/players/${playerName}`);
-          if (!response.ok) {
-            throw new Error(`Failed to fetch player data: ${response.status}`);
-          }
-          
-          const result = await response.json();
-
-          if (result.error) {
-            throw new Error(result.error);
-          }
-          const player = PlayerResponseSchema.parse(result.player);
-          
-          return player;
-        }
-      }
-    ]
-  });
+  const results = usePlayerAndHeroQueries(playerName);
 
   const { heroes, playerData, isLoading, error } = results;
 

@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowDownIcon, ArrowUpIcon } from "@/components/icons";
-import type { HeroesUnranked, Hero } from "@/lib/schema";
+import type { HeroesUnranked } from "@/lib/schema";
+import { Avatar, AvatarImage } from "../ui/avatar";
+import { usePlayerAndHeroQueries } from "@/pages/PlayerStats";
 
 type SortableKey = 'hero_id' | 'hero_name' | 'matches' | 'wins' | 'mvp' | 'svp' | 'kills' | 'deaths' | 'assists' | 'play_time' | 'damage' | 'heal' | 'damage_taken' | 'win_rate' | 'main_attack_total' | 'main_attack_hits';
 
-export function HeroesTab({ data }: { data: { heroes: HeroesUnranked } }) {
+export function HeroesTab({ data, playerName }: { data: { heroes: HeroesUnranked }, playerName: string }) {
   const { heroes } = data;
   const [sortConfig, setSortConfig] = useState<{
     key: SortableKey;
@@ -62,6 +64,8 @@ export function HeroesTab({ data }: { data: { heroes: HeroesUnranked } }) {
     </TableHead>
   );
 
+  const { heroes: allHeroes, isLoading: isLoadingHeroes} = usePlayerAndHeroQueries(playerName);
+
   return (
     <Card>
       <CardHeader>
@@ -72,7 +76,8 @@ export function HeroesTab({ data }: { data: { heroes: HeroesUnranked } }) {
           <Table>
             <TableHeader>
               <TableRow>
-                {renderSortHeader("Hero ID", "hero_id")}
+                {/* {renderSortHeader("Hero ID", "hero_id")} */}
+                <TableHead>Thumbnail</TableHead>
                 {renderSortHeader("Hero Name", "hero_name")}
                 {renderSortHeader("Matches", "matches")}
                 {renderSortHeader("Wins", "wins")}
@@ -93,7 +98,8 @@ export function HeroesTab({ data }: { data: { heroes: HeroesUnranked } }) {
             <TableBody>
               {sortedHeroes.map((hero, index) => (
                 <TableRow key={index}>
-                  <TableCell>{hero.hero_id}</TableCell>
+                  {/* <TableCell>{hero.hero_id}</TableCell> */}
+                  <TableCell className='flex items-center justify-center'><Avatar><AvatarImage className='object-cover object-top' src={`https://marvelrivalsapi.com/${allHeroes?.find(h => Number(h.id) === hero.hero_id)?.imageUrl}`} /></Avatar></TableCell>
                   <TableCell className="font-medium">
                     {hero.hero_name}
                   </TableCell>
@@ -122,3 +128,7 @@ export function HeroesTab({ data }: { data: { heroes: HeroesUnranked } }) {
     </Card>
   );
 } 
+
+function useQuery(arg0: { queryKey: string[]; queryFn: () => Promise<Response>; }) {
+  throw new Error("Function not implemented.");
+}
