@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { z } from "zod";
 import { PlayerResponseSchema, HeroSchema } from "@/lib/schema";
 import { useQueries } from "@tanstack/react-query";
+import { ArrowDownIcon, ArrowUpIcon } from "@/components/icons";
 
 interface PlayerStatsProps {
   playerName: string;
@@ -13,6 +14,10 @@ interface PlayerStatsProps {
 
 export function PlayerStats({ playerName }: PlayerStatsProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [sortConfig, setSortConfig] = useState<{
+    key: 'hero_id' | 'win_rate';
+    direction: 'asc' | 'desc';
+  }>({ key: 'win_rate', direction: 'desc' });
 
   const results = useQueries({
     combine: (results) => {
@@ -20,9 +25,9 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
         heroes: results[0].data,
         playerData: results[1].data,
         isLoading: results.some((result) => result.isLoading),
-        error: results.reduce((acc, result) => {
+        error: results.reduce((acc: Error | null, result) => {
           if (result.error) {
-            return result.error;
+            return result.error as Error;
           }
           return acc;
         }, null)
@@ -82,6 +87,28 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
   
   // For overall stats, we'll check if it exists in player_data
   const overallStats = playerData.overall_stats;
+
+  // Handle sorting for hero matchups
+  const sortedHeroMatchups = [...(heroMatchups || [])].sort((a, b) => {
+    if (sortConfig.key === 'hero_id') {
+      const heroA = heroes?.find((h) => h.id === String(a.hero_id))?.name || '';
+      const heroB = heroes?.find((h) => h.id === String(b.hero_id))?.name || '';
+      return sortConfig.direction === 'asc' 
+        ? heroA.localeCompare(heroB)
+        : heroB.localeCompare(heroA);
+    } else {
+      return sortConfig.direction === 'asc'
+        ? a.win_rate - b.win_rate
+        : b.win_rate - a.win_rate;
+    }
+  });
+
+  const handleSort = (key: 'hero_id' | 'win_rate') => {
+    setSortConfig((prevConfig) => ({
+      key,
+      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
 
   return (
     <Card className="w-full">
@@ -245,14 +272,42 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Hero ID</TableHead>
-                        <TableHead>Win Rate</TableHead>
+                        <TableHead 
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => handleSort('hero_id')}
+                        >
+                          Hero
+                          {sortConfig.key === 'hero_id' && (
+                            <span className="ml-2 inline-block">
+                              {sortConfig.direction === 'asc' ? (
+                                <ArrowUpIcon className="h-4 w-4" />
+                              ) : (
+                                <ArrowDownIcon className="h-4 w-4" />
+                              )}
+                            </span>
+                          )}
+                        </TableHead>
+                        <TableHead 
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => handleSort('win_rate')}
+                        >
+                          Win Rate
+                          {sortConfig.key === 'win_rate' && (
+                            <span className="ml-2 inline-block">
+                              {sortConfig.direction === 'asc' ? (
+                                <ArrowUpIcon className="h-4 w-4" />
+                              ) : (
+                                <ArrowDownIcon className="h-4 w-4" />
+                              )}
+                            </span>
+                          )}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {heroMatchups.map((hero, index: number) => (
+                      {sortedHeroMatchups.map((hero, index: number) => (
                         <TableRow key={index}>
-                            <TableCell className="font-medium">{toTitleCase(heroes?.find((h) => h.id === String(hero.hero_id))?.name) || hero.hero_id}</TableCell>
+                          <TableCell className="font-medium">{toTitleCase(heroes?.find((h) => h.id === String(hero.hero_id))?.name || '') || hero.hero_id}</TableCell>
                           <TableCell>
                             <Badge variant={hero.win_rate > 50 ? "secondary" : "outline"}>
                               {hero.win_rate}%
@@ -304,7 +359,8 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
   );
 } 
 
-function toTitleCase(str) {
+function toTitleCase(str: string): string {
+  if (!str) return '';
   return str.split(' ').map(word => {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
   }).join(' ');
