@@ -60,6 +60,7 @@ export interface DB {
     values(...params: unknown[]): unknown[][];
   };
 }
+// db.run("ALTER TABLE players ADD COLUMN overall_stats JSON;");
 
 // Export database instance
 export default db as DB;

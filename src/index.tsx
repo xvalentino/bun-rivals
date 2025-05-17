@@ -3,31 +3,12 @@ import { fetchAndStoreHeroes, fetchAndStorePlayer } from "./lib/mv-api";
 import type { Hero, Player } from "./lib/schema";
 import index from "./index.html";
 
-// Define a result type for API responses
-type Result<T, E extends Error = Error> = 
-  | { ok: true; data: T }
-  | { ok: false; error: E };
-
-// Helper function for consistent API responses
-function apiResponse<T>(result: Result<T>): Response {
-  if (result.ok) {
-    return Response.json({ ok: true, data: result.data });
-  } else {
-    console.error("API Error:", result.error);
-    return Response.json(
-      { ok: false, error: result.error.message }, 
-      { status: 500 }
-    );
-  }
-}
 
 const server = serve({
   port: 3000,
   
   // Define routes
   routes: {
-
-    "/*": index,
     
     // API Routes
     "/api/hydrate/heroes": async () => {
@@ -73,6 +54,7 @@ const server = serve({
     
     "/api/players/:name": async (req) => {
       try {
+        console.log('fetching player', req.url)
         const playerName = req.params.name;
         const db = (await import("./lib/db")).default;
         const player = db.query("SELECT * FROM players WHERE name = ?").get(playerName) as Player | undefined;
@@ -100,6 +82,9 @@ const server = serve({
       const file = Bun.file(`public/static/${path}`);
       return new Response(file);
     },
+
+    "/": index,
+    "/players/:name": index,
   },
   
   // Fallback for unmatched routes - serve the frontend

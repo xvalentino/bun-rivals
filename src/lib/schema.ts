@@ -70,6 +70,26 @@ export const PlayerSchema = z.object({
   maps: z.union([z.record(z.number()), z.array(z.any())]).optional(),
 });
 
+export const PlayerResponse = z.object({
+  uid: z.string(),
+  name: z.string(),
+  player_data: z.string().transform(val => JSON.parse(val)),
+  match_history: z.string().transform(val => JSON.parse(val)),
+  rank_history: z.string().transform(val => JSON.parse(val)),
+  hero_matchups: z.string().transform(val => JSON.parse(val)),
+  team_mates: z.string().transform(val => JSON.parse(val)),
+  heroes_ranked: z.string().transform(val => JSON.parse(val)),
+  heroes_unranked: z.string().transform(val => JSON.parse(val)), 
+  maps: z.string().transform(val => JSON.parse(val)),
+  overall_stats: z.string().transform(val => JSON.parse(val)).pipe(z.object({
+    total_matches: z.number(),
+    total_wins: z.number(),
+    unranked: z.record(z.any()),
+    ranked: z.record(z.any())
+  })),
+  updated_at: z.string()
+})
+
 // Export types derived from schemas
 export type Player = z.infer<typeof PlayerSchema>;
 export type MatchHistoryItem = z.infer<typeof MatchHistoryItemSchema>;

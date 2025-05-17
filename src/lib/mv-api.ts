@@ -113,21 +113,21 @@ export async function fetchAndStorePlayer(playerName: string): Promise<Result<Pl
     return result;
   }
 
-  const player = result.data;
+  const playerResponse = result.data;
+
+  const player = PlayerSchema.parse(playerResponse);
   
   try {
     const stmt = db.prepare(`
       INSERT OR REPLACE INTO players
       (uid, name, player_data, match_history, rank_history, hero_matchups, 
-       team_mates, heroes_ranked, heroes_unranked, maps, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+       team_mates, heroes_ranked, heroes_unranked, maps, overall_stats, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     `);
 
-    // Ensure uid is a string before storing it
-    const uid = typeof player.uid === 'number' ? player.uid.toString() : player.uid;
     
     stmt.run(
-      uid,
+      player.uid,
       player.name,
       JSON.stringify(player.player || {}),
       player.match_history ? JSON.stringify(player.match_history) : null,
@@ -136,10 +136,10 @@ export async function fetchAndStorePlayer(playerName: string): Promise<Result<Pl
       player.team_mates ? JSON.stringify(player.team_mates) : null,
       player.heroes_ranked ? JSON.stringify(player.heroes_ranked) : null,
       player.heroes_unranked ? JSON.stringify(player.heroes_unranked) : null,
-      player.maps ? JSON.stringify(player.maps) : null
+      player.maps ? JSON.stringify(player.maps) : null,
+      player.overall_stats ? JSON.stringify(player.overall_stats) : null
     );
 
-    console.log(`Player ${player.name} data saved.`);
     return { ok: true, data: player };
   } catch (error) {
     console.error("Error storing player:", error);

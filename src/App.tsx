@@ -1,26 +1,44 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { APITester } from "./APITester";
 import "./index.css";
+import { PlayerStats } from "./pages/PlayerStats";
 
 import logo from "./logo.svg";
 import reactLogo from "./react.svg";
 
-export function App() {
+export function App() {  
   // Check if we're on a player page
   const isPlayerPage = window.location.pathname.startsWith('/players/');
   
   // If we're on a player page, extract the player name
   const playerName = isPlayerPage ? window.location.pathname.split('/')[2] : null;
-  
-  // If we're on a player page, show player info
+
+  // If we're on a player page with a player name, show player info
   if (isPlayerPage && playerName) {
     return (
-      <div className="container mx-auto p-8 text-center">
-        <h1 className="text-3xl font-bold mb-4">Player: {playerName}</h1>
-        <p className="mb-4">This is the player page for {playerName}</p>
-        <a href="/" className="text-blue-500 hover:underline">
-          Back to Home
-        </a>
+      <div className="container mx-auto p-8">
+        <div className="mb-4">
+          <a href="/" className="text-blue-500 hover:underline">
+            Back to Home
+          </a>
+        </div>
+        <PlayerStats playerName={playerName} />
+      </div>
+    );
+  }
+  
+  // Show an error message if we're on a player page but no player name found
+  if (isPlayerPage) {
+    return (
+      <div className="container mx-auto p-8">
+        <div className="mb-4">
+          <a href="/" className="text-blue-500 hover:underline">
+            Back to Home
+          </a>
+        </div>
+        <div className="p-4 bg-red-100 text-red-800 rounded-md">
+          No player name provided in URL. Please use a valid player URL like /players/playername.
+        </div>
       </div>
     );
   }
@@ -50,7 +68,7 @@ export function App() {
             save to test HMR
           </p>
           <div className="mb-4">
-            <a href="/player/testplayer" className="text-blue-500 hover:underline">
+            <a href="/players/testplayer" className="text-blue-500 hover:underline">
               View Test Player Page
             </a>
           </div>
