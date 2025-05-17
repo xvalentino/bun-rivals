@@ -47,6 +47,25 @@ const TeammateSchema = z.object({
   nickname: z.string().optional(),
 });
 
+const RankedOrUnrankedSchema = z.object({
+  total_matches: z.number(),
+  total_wins: z.number(),
+  total_assists: z.number(),
+  total_deaths: z.number(),
+  total_kills: z.number(),
+  total_time_played: z.string(),
+  total_time_played_raw: z.number(),
+  total_mvp: z.number(),
+  total_svp: z.number()
+});
+
+const OverallStatsSchema = z.object({
+  total_matches: z.number(),
+  total_wins: z.number(),
+  unranked: RankedOrUnrankedSchema,
+  ranked: RankedOrUnrankedSchema
+})
+
 // Define a more robust PlayerSchema
 export const PlayerSchema = z.object({
   uid: z.union([
@@ -60,7 +79,7 @@ export const PlayerSchema = z.object({
     nickname: z.string().optional(),
     isPrivate: z.boolean().optional(),
   }),
-  overall_stats: z.record(z.union([z.object({}), z.number()])).optional(),
+  overall_stats: OverallStatsSchema,
   match_history: z.array(MatchHistoryItemSchema).optional(),
   rank_history: z.array(RankHistoryItemSchema).optional(),
   hero_matchups: z.array(HeroMatchupSchema).optional(),
@@ -70,23 +89,48 @@ export const PlayerSchema = z.object({
   maps: z.union([z.record(z.number()), z.array(z.any())]).optional(),
 });
 
+
+
+const PlayerDataSchema = z.object({
+  player_id: z.string().optional(),
+  nickname: z.string().optional(),
+  isPrivate: z.boolean().optional()
+});
+
+const MatchHistorySchema = z.object({
+  match_id: z.string().optional(),
+  date: z.string().datetime().optional(),
+  result: z.enum(["win", "lose"]).optional(),
+  kills: z.number().optional(),
+  deaths: z.number().optional(), 
+  assists: z.number().optional()
+});
+
+const RankHistorySchema = z.object({
+  season: z.number().optional(),
+  rank: z.string().optional(),
+  points: z.number().optional()
+});
+
+const HeroesRankedSchema = z.object({
+  hero_id: z.number().optional(),
+  games_played: z.number().optional(),
+  games_won: z.number().optional()
+});
+
+
 export const PlayerResponse = z.object({
   uid: z.string(),
   name: z.string(),
-  player_data: z.string().transform(val => JSON.parse(val)),
-  match_history: z.string().transform(val => JSON.parse(val)),
-  rank_history: z.string().transform(val => JSON.parse(val)),
-  hero_matchups: z.string().transform(val => JSON.parse(val)),
-  team_mates: z.string().transform(val => JSON.parse(val)),
-  heroes_ranked: z.string().transform(val => JSON.parse(val)),
-  heroes_unranked: z.string().transform(val => JSON.parse(val)), 
-  maps: z.string().transform(val => JSON.parse(val)),
-  overall_stats: z.string().transform(val => JSON.parse(val)).pipe(z.object({
-    total_matches: z.number(),
-    total_wins: z.number(),
-    unranked: z.record(z.any()),
-    ranked: z.record(z.any())
-  })),
+  player_data: z.string().optional().transform(val => val && JSON.parse(val)).pipe(PlayerDataSchema).optional(),
+  match_history: z.string().transform(val => JSON.parse(val)).pipe(z.array(MatchHistorySchema)).optional(),
+  rank_history: z.string().transform(val => JSON.parse(val)).pipe(z.array(RankHistorySchema)).optional(),
+  hero_matchups: z.string().transform(val => JSON.parse(val)).pipe(z.array(HeroMatchupSchema)).optional(),
+  team_mates: z.string().transform(val => JSON.parse(val)).pipe(z.array(TeammateSchema)).optional(),
+  heroes_ranked: z.string().transform(val => JSON.parse(val)).pipe(z.array(HeroesRankedSchema)).optional(),
+  heroes_unranked: z.string().transform(val => JSON.parse(val)).pipe(z.array(HeroesRankedSchema)).optional(), 
+  maps: z.string().transform(val => JSON.parse(val)).pipe(z.array(z.any())).optional(),
+  overall_stats: z.string().transform(val => JSON.parse(val)).pipe(OverallStatsSchema).optional(),
   updated_at: z.string()
 })
 

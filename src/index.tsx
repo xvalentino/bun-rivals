@@ -1,6 +1,6 @@
 import { serve } from "bun";
 import { fetchAndStoreHeroes, fetchAndStorePlayer } from "./lib/mv-api";
-import type { Hero, Player } from "./lib/schema";
+import { PlayerResponse, type Hero, type Player } from "./lib/schema";
 import index from "./index.html";
 
 
@@ -54,7 +54,6 @@ const server = serve({
     
     "/api/players/:name": async (req) => {
       try {
-        console.log('fetching player', req.url)
         const playerName = req.params.name;
         const db = (await import("./lib/db")).default;
         const player = db.query("SELECT * FROM players WHERE name = ?").get(playerName) as Player | undefined;

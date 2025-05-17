@@ -31,10 +31,7 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
       if (result.error) {
         throw new Error(result.error);
       }
-      // console.log('result', result)
-      console.log('result', result.player)
       const player = PlayerResponse.parse(result.player);
-      console.log('player', player)
       
       return player;
     },
@@ -72,7 +69,7 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
             {matchHistory && matchHistory.length > 0 && (
               <TabsTrigger value="matches">Match History</TabsTrigger>
             )}
-            {rankHistory && rankHistory.length > 0 && (
+            {rankHistory && Object.keys(rankHistory).length > 0 && (
               <TabsTrigger value="ranks">Rank History</TabsTrigger>
             )}
             {heroMatchups && heroMatchups.length > 0 && (
@@ -98,12 +95,39 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {Object.entries(overallStats).map(([key, value]) => (
-                        <TableRow key={key}>
-                          <TableCell className="font-medium">{key.replace(/_/g, ' ')}</TableCell>
-                          <TableCell>{typeof value === 'number' ? value : JSON.stringify(value)}</TableCell>
-                        </TableRow>
-                      ))}
+                      {Object.entries(overallStats).map(([key, value]) => {
+                        if (key === 'ranked' || key === 'unranked') {
+                          const stats = value as {
+                            total_matches: number;
+                            total_wins: number;
+                            total_assists: number;
+                            total_deaths: number;
+                            total_kills: number;
+                            total_time_played: string;
+                            total_mvp: number;
+                            total_svp: number;
+                          };
+                          return (
+                            <TableRow key={key} className="border-t-2">
+                              <TableCell className="font-medium capitalize">{key}</TableCell>
+                              <TableCell>
+                                <div className="space-y-1">
+                                  <div>Matches: {stats.total_matches} (Wins: {stats.total_wins})</div>
+                                  <div>KDA: {stats.total_kills}/{stats.total_deaths}/{stats.total_assists}</div>
+                                  <div>Time Played: {stats.total_time_played}</div>
+                                  <div>MVP: {stats.total_mvp} / SVP: {stats.total_svp}</div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        }
+                        return (
+                          <TableRow key={key}>
+                            <TableCell className="font-medium">{key.replace(/_/g, ' ')}</TableCell>
+                            <TableCell>{typeof value === 'number' ? value : JSON.stringify(value)}</TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 ) : (
@@ -161,7 +185,7 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
                 <CardTitle>Rank History</CardTitle>
               </CardHeader>
               <CardContent>
-                {rankHistory && rankHistory.length > 0 ? (
+                {rankHistory && Object.keys(rankHistory).length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
