@@ -12,6 +12,7 @@ export interface TabContentProps {
 export interface OverviewTabProps extends TabContentProps {
   data: {
     overallStats: any;
+    updates: any;
   };
 }
 

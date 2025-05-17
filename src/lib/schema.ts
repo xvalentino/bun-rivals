@@ -31,7 +31,7 @@ const RankHistoryItemSchema = z.object({
 });
 
 const HeroMatchupSchema = z.object({
-  hero_id: z.number(),
+  hero_id: z.number().nullable(),
   // API returns win_rate as string, so parse it to number
   win_rate: z.union([
     z.number(),
@@ -39,7 +39,7 @@ const HeroMatchupSchema = z.object({
       val => !isNaN(parseFloat(val)),
       { message: "String must be convertible to a number" }
     ).transform(val => parseFloat(val))
-  ]),
+  ]).optional(),
 });
 
 const TeammateSchema = z.object({

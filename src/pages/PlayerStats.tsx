@@ -109,7 +109,7 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
           </TabsList>
 
           <TabsContent value="overview">
-            <OverviewTab data={{ overallStats }} />
+            <OverviewTab data={{ overallStats, updates: playerData.updates }} />
           </TabsContent>
 
           {hasHeroMatchups && (
@@ -128,6 +128,7 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
             <TabsContent value="ranked-heroes">
               <HeroesTab 
                 data={{ heroes: heroesRanked }}
+                playerName={playerName}
               />
             </TabsContent>
           )}
@@ -136,6 +137,7 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
             <TabsContent value="unranked-heroes">
               <HeroesTab 
                 data={{ heroes: heroesUnranked }} 
+                playerName={playerName}
               />
             </TabsContent>
           )}

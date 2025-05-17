@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { OverviewTabProps } from "./types";
 
 export function OverviewTab({ data }: OverviewTabProps) {
-  const { overallStats } = data;
+  const { overallStats, updates } = data;
 
   return (
     <Card>
@@ -46,6 +46,14 @@ export function OverviewTab({ data }: OverviewTabProps) {
                     </TableRow>
                   );
                 }
+                return (
+                  <TableRow key={key}>
+                    <TableCell className="font-medium">{key.replace(/_/g, ' ')}</TableCell>
+                    <TableCell>{typeof value === 'number' ? value : JSON.stringify(value)}</TableCell>
+                  </TableRow>
+                );
+              })}
+              {updates && Object.entries(updates).map(([key, value]) => {
                 return (
                   <TableRow key={key}>
                     <TableCell className="font-medium">{key.replace(/_/g, ' ')}</TableCell>
