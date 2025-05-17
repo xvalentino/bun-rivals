@@ -1,6 +1,6 @@
 import { serve } from "bun";
-import { fetchAndStoreHeroes, fetchAndStorePlayer } from "./lib/mv-api";
-import { PlayerResponse, type Hero, type Player } from "./lib/schema";
+import { fetchAndStoreHeroes, fetchAndStorePlayer, updatePlayer } from "./lib/mv-api";
+import { type Hero, type Player } from "./lib/schema";
 import index from "./index.html";
 
 
@@ -36,6 +36,13 @@ const server = serve({
           { status: 500 }
         );
       }
+    },
+
+    "/api/hydrate/players/:name/update": async (req) => {
+      const playerName = req.params.name;
+      const result = await updatePlayer(playerName);
+
+      return Response.json({ ok: true, result });
     },
     
     "/api/heroes": async () => {

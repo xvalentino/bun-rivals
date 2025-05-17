@@ -3,12 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import type { z } from "zod";
-import { PlayerResponse } from "@/lib/schema";
-import { useQuery } from "@tanstack/react-query";
-
-type PlayerData = z.infer<typeof PlayerResponse>;
+import { z } from "zod";
+import { PlayerResponse, HeroSchema } from "@/lib/schema";
+import { useQueries } from "@tanstack/react-query";
 
 interface PlayerStatsProps {
   playerName: string;
@@ -16,26 +13,53 @@ interface PlayerStatsProps {
 
 export function PlayerStats({ playerName }: PlayerStatsProps) {
   const [activeTab, setActiveTab] = useState("overview");
-  
-  // Fetch player data using React Query
-  const { data: playerData, isLoading, error } = useQuery({
-    queryKey: ['player', playerName],
-    queryFn: async () => {
-      const response = await fetch(`/api/players/${playerName}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch player data: ${response.status}`);
-      }
-      
-      const result = await response.json();
 
-      if (result.error) {
-        throw new Error(result.error);
+  const results = useQueries({
+    combine: (results) => {
+      return {
+        heroes: results[0].data,
+        playerData: results[1].data,
+        isLoading: results.some((result) => result.isLoading),
+        error: results.reduce((acc, result) => {
+          if (result.error) {
+            return result.error;
+          }
+          return acc;
+        }, null)
       }
-      const player = PlayerResponse.parse(result.player);
-      
-      return player;
     },
+    queries: [
+      {
+        queryKey: ['heroes'],
+        queryFn: async () => {
+          const response = await fetch('/api/heroes');
+          const result = await response.json();
+          const heroes = z.array(HeroSchema).parse(result.heroes);
+          return heroes;
+        }
+      },
+      {
+        queryKey: ['player', playerName],
+        queryFn: async () => {
+          const response = await fetch(`/api/players/${playerName}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch player data: ${response.status}`);
+          }
+          
+          const result = await response.json();
+
+          if (result.error) {
+            throw new Error(result.error);
+          }
+          const player = PlayerResponse.parse(result.player);
+          
+          return player;
+        }
+      }
+    ]
   });
+
+  const { heroes, playerData, isLoading, error } = results;
 
   if (isLoading) {
     return <div>Loading player data...</div>;
@@ -228,7 +252,7 @@ export function PlayerStats({ playerName }: PlayerStatsProps) {
                     <TableBody>
                       {heroMatchups.map((hero: any, index: number) => (
                         <TableRow key={index}>
-                          <TableCell className="font-medium">{hero.hero_id}</TableCell>
+                            <TableCell className="font-medium">{heroes.find((h: any) => h.id === hero.hero_id)?.name || "N/A"}</TableCell>
                           <TableCell>
                             <Badge variant={hero.win_rate > 50 ? "secondary" : "outline"}>
                               {hero.win_rate}%

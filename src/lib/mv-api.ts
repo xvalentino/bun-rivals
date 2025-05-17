@@ -150,6 +150,20 @@ export async function fetchAndStorePlayer(playerName: string): Promise<Result<Pl
   }
 }
 
-// fetchAndStoreHeroes().catch((err) => {
-//   console.error("Error:", err);
-// });
+export async function updatePlayer(playerName: string): Promise<Result<any, Error>> {
+  const apiKey = process.env.MARVEL_RIVALS_API_KEY;
+    
+  if (!apiKey) {
+    return { 
+      ok: false, 
+      error: new Error("Missing MARVEL_RIVALS_API_KEY environment variable") 
+    };
+  }
+  const response = fetch('https://marvelrivalsapi.com/api/v1/players/update',{
+    headers: {
+      "x-api-key": apiKey,
+    },
+  });
+
+  return { ok: true, data: response };
+}

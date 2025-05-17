@@ -4,10 +4,10 @@ export const HeroSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
   real_name: z.string().min(1),
-  imageUrl: z.string().url(),
+  imageUrl: z.string(),
   role: z.string().min(1),
   attack_type: z.string().min(1),
-  team: z.array(z.string().min(1)),
+  // team: z.array(z.string().min(1)),
   difficulty: z.string().min(1),
   // Excluded: bio, lore, transformations, costumes, abilities
 });
