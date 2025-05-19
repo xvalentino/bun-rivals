@@ -2,13 +2,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { APITester } from "./APITester";
 import "./index.css";
 import { PlayerStats } from "./pages/PlayerStats";
+import { PlayerSearch } from "./pages/PlayerSearch";
 
 import logo from "./logo.svg";
 import reactLogo from "./react.svg";
 
 export function App() {
 	// Check if we're on a player page
-	const isPlayerPage = window.location.pathname.startsWith("/players/");
+	const isPlayerPage = window.location.pathname.startsWith("/players");
 
 	// If we're on a player page, extract the player name
 	const playerName = isPlayerPage
@@ -28,24 +29,9 @@ export function App() {
 			</div>
 		);
 	}
-
-	// Show an error message if we're on a player page but no player name found
 	if (isPlayerPage) {
-		return (
-			<div className="container mx-auto p-8">
-				<div className="mb-4">
-					<a href="/" className="text-blue-500 hover:underline">
-						Back to Home
-					</a>
-				</div>
-				<div className="p-4 bg-red-100 text-red-800 rounded-md">
-					No player name provided in URL. Please use a valid player URL like
-					/players/playername.
-				</div>
-			</div>
-		);
+		return <PlayerSearch />;
 	}
-
 	// Otherwise show the normal home page
 	return (
 		<div className="container mx-auto p-8 text-center relative z-10">
@@ -64,20 +50,18 @@ export function App() {
 
 			<Card className="bg-card/50 backdrop-blur-sm border-muted">
 				<CardContent className="pt-6">
-					<h1 className="text-5xl font-bold my-4 leading-tight">Bun + React</h1>
+					<h1 className="text-5xl font-bold my-4 leading-tight">Rivals App</h1>
 					<p>
-						Edit{" "}
-						<code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-							src/App.tsx
-						</code>{" "}
-						and save to test HMR
+						This app is a work in progress. Send requests to the following URL to populate the database:<br />
+						To add the player to the database: /api/hydrate/players/:playername<br/>
+						To "refresh" the player's data, so that its up to date (takes 30 minutes): /api/hydrate/players/:playername/update<br/>
 					</p>
 					<div className="mb-4">
 						<a
-							href="/players/testplayer"
+							href="/players"
 							className="text-blue-500 hover:underline"
 						>
-							View Test Player Page
+							View Players Page
 						</a>
 					</div>
 					<APITester />

@@ -96,6 +96,13 @@ const server = serve({
 
 		"/": index,
 		"/players/:name": index,
+		"/players": index,
+		'/api/search': async (req) => {
+			const query = new URL(req.url).searchParams.get('query') || '';
+			const db = (await import("./lib/db")).default;
+			const players = db.query("SELECT name FROM players WHERE name LIKE ? LIMIT 10").all(`%${query}%`);
+			return Response.json({ players });
+		}
 	},
 
 	// Fallback for unmatched routes - serve the frontend

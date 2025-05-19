@@ -90,7 +90,7 @@ export const PlayerSchema = z.object({
 				"last_inserted_match",
 				"last_update_request",
 			]),
-			z.string(),
+			z.string().nullable(),
 		)
 		.optional(),
 	player: z.object({
